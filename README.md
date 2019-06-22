@@ -2,23 +2,23 @@
 
 说到 babel 你肯定会先想到 babel 可以将还未被浏览器实现的 ES6 规范转换成能够运行 ES5 规范，或者可以将 JSX 转换为浏览器能识别的  HTML 结构，那么 babel 是如何进行这个转换的步骤呢，下面我将通过开发一个简单的 babel 插件来解释这整个过程，希望你对 Babel 插件原理与 AST 有新的认知。
 
-### Babel 运行阶段
+## Babel 运行阶段
 
 从上面的分析，我们大概能猜出 Babel 的运行过程是：原始代码 -> 修改代码，那么在这个转换的过程中，我们需要知道以下三个重要的步骤。
 
-#### 解析
+### 解析
 
 首先需要将 JavaScript 字符串经过词法分析、语法分析后，转换为计算机更易处理的表现形式，称之为“抽象语法树(AST)”，这个步骤我们使用了 [Babylon](https://github.com/babel/babylon) 解析器。
 
-#### 转换
+### 转换
 
 当 JavaScript 从字符串转换为 AST 后，我们就能更方便地对其进行浏览、分析和有规律的修改，根据我们的需求，将其转换为新的 AST，[babel-traverse](https://www.npmjs.com/package/babel-traverse) 是一个很好的转换工具，使得我们能够很便利的操作 AST 。
 
-#### 生成
+### 生成
 
 最后，我们将修改完的 AST 进行反向处理，生成 JavaScript 字符串，整个转换过程也就完成了，这一步当中，我们使用到了 [babel-generator](https://www.npmjs.com/package/babel-generator) 模块。
 
-### 什么是 AST
+## 什么是 AST
 
 之前听过一句话：“如果你能熟练地操作 AST ，那么你真的可以为所欲为。”，当时并不理解其含义，直到真正了解 AST 后，才发现 AST 对编程语言的重要性是不可估量的。
 
@@ -52,9 +52,9 @@ AST 的根节点都是 Program ，这个例子中包含了两部分：
 
 这只是一个简单的例子，在实际开发中，AST 将会是一个巨型节点树，将字符串形式的源代码转换成树状的结构，计算机便能更方便地处理，我们使用的 Babel 插件，也就是对 AST 进行插入/移动/替换/删除节点，创建成新的 AST ，再将 AST 转换为字符串源代码，这便是 Babel 插件的原理，之所以能够“为所欲为”，其原因就是可以将原始代码按照指定逻辑转换为你想要的代码。
 
-### 开发 Babel 插件 Demo
+## 开发 Babel 插件 Demo
 
-#### 基础概念
+### 基础概念
 
 一个典型的 Babel 插件结构，如下代码所示：
 
@@ -87,7 +87,7 @@ export default function(babel) {
 - `ArrayExpression、ASTNodeTypeHere`: 指 AST 中的节点类型。
 
 
-#### 需求分析
+### 需求分析
 
 因为是 Demo ，我们需求很简单，我们开发的 Bable 插件名称叫 `vincePlugin`，在使用的时候，能配置插件的参数，使得插件能按照我们配置的参数进行转换。
 
@@ -109,7 +109,7 @@ var fool = [1,2,3];
 var fool = vince.init(1,2,3)
 ```
 
-#### 初始化项目
+### 初始化项目
 
 为了大家更方便的阅读代码，源码已经上传到GitHub： [babel-plugin-demo](https://github.com/Vincedream/babel-plugin-demo)
 
@@ -171,7 +171,7 @@ fs.readFile('index.js', function(err, data) {
 ```
 我们通过 `node test.js`，来测试 babel 插件的转换输出。
 
-#### 节点对比
+### 节点对比
 
 - 原始代码 `var fool = [1,2,3];` 通过 AST 分析出来的节点如图：
 
@@ -183,7 +183,7 @@ fs.readFile('index.js', function(err, data) {
 
 我们通过用红色标注来区分原始与转换后的 AST 结构图，现在我们可以很清晰的看到我们需要替换的节点，将 ArrayExpression 替换为 CallExpression ，在 CallExpression 节点中中增加一个 MemberExpression，并且保留原始的三个 NumericLiteral。
 
-#### plugin 编写
+### plugin 编写
 
 首先，我们需要替换的是 ArrayExpression ，所以给 vistor 添加 ArrayExpression 方法。
 
@@ -230,7 +230,7 @@ module.exports = function(babel) {
 
 更多的转换方式和节点属性，可以查阅 [babel-types](https://github.com/babel/babel/tree/master/packages/babel-types#babel-types) 的文档
 
-#### 测试plugin
+### 测试plugin
 
 我们回到`test.js`，运行`node test.js`，便会得出：
 
@@ -243,7 +243,7 @@ node test.js
 
 到这里，我们简易的 Babel 插件便完成好了，实际上的开发需求要复杂的多，但是主要的逻辑还是离不开上面的几个概念。
 
-### 总结
+## 总结
 
 还是回到开始那句话“如果你能熟练地操作 AST ，那么你真的可以为所欲为。”，我们能够通过 AST 将原始代码转换成我们所需要的任何代码，甚至你能创建一个私人的 `ESXXX`，添加你创造的新规范。AST 并不是一个很复杂的技术活，很大一部分可以视为“苦力活”，因为遇到复杂的转换需求可能需要编写写很多逻辑代码。
 
